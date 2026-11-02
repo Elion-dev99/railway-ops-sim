@@ -196,6 +196,12 @@ function resetAll(){
   LS = DATA.lines.map((m, i) => makeLineState(m, i));
   buildLineSel(); buildSegSel();
   log(`ダイヤ開始（全${LS.length}線区・${LS.reduce((a, l) => a + l.trains.length, 0)}本）`);
+  // 開いた直後から列車が動いている状態にするため、朝ラッシュまで早送りする
+  const autoWas = $("autoIncident").checked; $("autoIncident").checked = false;
+  while (simNow < 7 * 3600 + 45 * 60) step(30);
+  $("autoIncident").checked = autoWas;
+  logLines = [];
+  log(`7:45 時点から表示（全線運行中）`);
   renderAll(true);
 }
 function log(msg){
@@ -591,7 +597,8 @@ function buildSegSel(){
   $("segFrom").innerHTML = L.stations.slice(0, -1).map((nm, i) => `<option value="${i}">${esc(nm)} から先</option>`).join("");
 }
 function applyDataset(data, label){
-  DATA = data; sel = 0;
+  DATA = data;
+  sel = Math.max(0, data.lines.findIndex(l => l.title.includes("大阪環状線 外回り")));
   $("dayLabel").textContent = label || data.dateLabel || "";
   $("srcNote").textContent = data.sourceNote || "";
   resetAll();
