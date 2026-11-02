@@ -6,96 +6,143 @@
 <title>運行管理シミュレーター | JR関西 実時刻表</title>
 <style>
   :root{
-    --bg:#f5f5f7; --panel:#ffffff; --ink:#1d1d1f; --sub:#6e6e73; --line:#d2d2d7;
-    --accent:#0066cc; --warn:#e8590c; --bad:#d70015; --ok:#248a3d;
-    --radius:14px;
+    --bg:#101216; --panel:#171a20; --panel2:#1d2027; --ink:#e8e9eb; --sub:#9aa0a8; --line:#2c2f36;
+    --accent:#4da3ff; --warn:#f5a623; --bad:#ff4d4f; --ok:#3fb950; --red-seg:#ff4d4f;
+    --radius:10px;
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
-  body{margin:0; font-family:-apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", sans-serif; background:var(--bg); color:var(--ink); font-size:14px}
-  header{display:flex; flex-wrap:wrap; gap:10px; align-items:center; padding:12px 16px; background:var(--panel); border-bottom:1px solid var(--line); position:sticky; top:0; z-index:10}
-  header h1{font-size:17px; margin:0; font-weight:700; letter-spacing:.02em}
-  .clock{font-variant-numeric:tabular-nums; font-size:22px; font-weight:700}
-  .clock small{font-size:12px; color:var(--sub); font-weight:600}
-  select, button, input[type="file"]{font:inherit}
-  select{padding:7px 10px; border:1px solid var(--line); border-radius:10px; background:#fff; max-width:46vw}
-  button{padding:7px 12px; border:1px solid var(--line); border-radius:10px; background:#fff; cursor:pointer; font-weight:600}
+  body{margin:0; font-family:-apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", sans-serif; background:var(--bg); color:var(--ink); font-size:13px}
+  header{display:flex; flex-wrap:wrap; gap:8px; align-items:center; padding:10px 14px; background:var(--panel); border-bottom:1px solid var(--line); position:sticky; top:0; z-index:10}
+  header h1{font-size:15px; margin:0; font-weight:700; letter-spacing:.04em}
+  header h1 small{display:block; font-size:10px; color:var(--sub); font-weight:600; letter-spacing:.08em}
+  .clock{font-variant-numeric:tabular-nums; font-size:24px; font-weight:700; line-height:1}
+  .clock small{font-size:11px; color:var(--sub); font-weight:600}
+  select, button{font:inherit; color:var(--ink)}
+  select{padding:6px 8px; border:1px solid var(--line); border-radius:8px; background:var(--panel2); max-width:52vw}
+  button{padding:6px 11px; border:1px solid var(--line); border-radius:8px; background:var(--panel2); cursor:pointer; font-weight:600}
   button:active{transform:scale(.98)}
-  button.primary{background:var(--accent); color:#fff; border-color:var(--accent)}
-  button.danger{color:var(--bad)}
-  .seg{display:inline-flex; border:1px solid var(--line); border-radius:10px; overflow:hidden}
-  .seg button{border:0; border-radius:0; padding:7px 10px}
-  .seg button.on{background:var(--ink); color:#fff}
-  main{padding:12px 16px 32px; display:grid; gap:12px; max-width:1180px; margin:0 auto}
-  .card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:12px 14px}
-  .card h2{font-size:13px; margin:0 0 8px; color:var(--sub); font-weight:700; letter-spacing:.06em}
-  .stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(110px,1fr)); gap:10px}
-  .stat{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:10px 12px}
-  .stat .v{font-size:20px; font-weight:700; font-variant-numeric:tabular-nums}
-  .stat .k{font-size:11px; color:var(--sub); font-weight:600}
-  #trackWrap{overflow-x:auto}
-  svg text{font-size:10px; fill:var(--sub)}
+  button.primary{background:var(--accent); color:#08131f; border-color:var(--accent)}
+  button.estop{background:#3a1518; color:#ff8082; border-color:#6e2327}
+  button.estop.on{background:var(--bad); color:#fff; border-color:var(--bad)}
+  .seg{display:inline-flex; border:1px solid var(--line); border-radius:8px; overflow:hidden}
+  .seg button{border:0; border-radius:0; padding:6px 9px; background:var(--panel2)}
+  .seg button.on{background:var(--ink); color:#111}
+  main{padding:10px 12px 30px; display:grid; gap:10px; max-width:1240px; margin:0 auto}
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:10px 12px}
+  .card h2{font-size:11px; margin:0 0 8px; color:var(--sub); font-weight:700; letter-spacing:.1em}
+  .stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(104px,1fr)); gap:8px}
+  .stat{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:8px 10px}
+  .stat .v{font-size:19px; font-weight:700; font-variant-numeric:tabular-nums}
+  .stat .k{font-size:10px; color:var(--sub); font-weight:600}
+  #overview{display:grid; grid-template-columns:repeat(auto-fill,minmax(168px,1fr)); gap:6px}
+  .ov{border:1px solid var(--line); border-radius:8px; padding:6px 8px; cursor:pointer; background:var(--panel2)}
+  .ov.sel{border-color:var(--accent)}
+  .ov .t{font-size:11px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .ov .s{font-size:11px; color:var(--sub); font-variant-numeric:tabular-nums}
+  .ov .s b{color:var(--ink)}
+  .st-ok{color:var(--ok)} .st-warn{color:var(--warn)} .st-bad{color:var(--bad)}
+  #trackWrap{overflow-x:auto; background:#0b0d10; border-radius:8px}
+  svg text{font-size:10px; fill:#9aa0a8}
   .trainDot{cursor:pointer}
   table{border-collapse:collapse; width:100%; font-variant-numeric:tabular-nums}
-  th, td{padding:6px 8px; border-bottom:1px solid #e8e8ec; text-align:left; white-space:nowrap}
-  th{font-size:11px; color:var(--sub)}
-  tr.sel{background:#eef4fb}
+  th, td{padding:5px 7px; border-bottom:1px solid #23262d; text-align:left; white-space:nowrap}
+  th{font-size:10px; color:var(--sub)}
+  tr.sel{background:#1d2a3d}
   tbody tr{cursor:pointer}
-  .badge{display:inline-block; padding:1px 7px; border-radius:99px; font-size:11px; font-weight:700; background:#eef0f2; color:#333}
-  .badge.exp{background:#fdecec; color:var(--bad)}
-  .badge.rap{background:#e7f0fe; color:var(--accent)}
+  .badge{display:inline-block; padding:1px 7px; border-radius:99px; font-size:11px; font-weight:700; background:#262a31; color:#c9ccd1}
+  .badge.exp{background:#3a2326; color:#ff9d9f}
+  .badge.rap{background:#1d2f45; color:#8fc3ff}
   .d-ok{color:var(--ok); font-weight:700} .d-warn{color:var(--warn); font-weight:700} .d-bad{color:var(--bad); font-weight:700}
   #log{height:150px; overflow-y:auto; font-size:12px; line-height:1.7; font-variant-numeric:tabular-nums}
   #log .t{color:var(--sub)}
-  .row{display:flex; flex-wrap:wrap; gap:8px; align-items:center}
-  .note{color:var(--sub); font-size:12px}
-  canvas{width:100%; height:auto; display:block}
-  .filelabel{display:inline-block; padding:7px 12px; border:1px solid var(--line); border-radius:10px; background:#fff; cursor:pointer; font-weight:600}
+  #alerts{font-size:12px; line-height:1.8}
+  .row{display:flex; flex-wrap:wrap; gap:7px; align-items:center}
+  .note{color:var(--sub); font-size:11px}
+  canvas{width:100%; height:auto; display:block; background:#0b0d10; border-radius:8px}
+  .filelabel{display:inline-block; padding:6px 11px; border:1px solid var(--line); border-radius:8px; background:var(--panel2); cursor:pointer; font-weight:600}
   input[type="file"]{display:none}
-  @media (max-width:640px){ .clock{font-size:19px} main{padding:10px 10px 28px} }
+  .cmdgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:10px}
+  @media (max-width:640px){ .clock{font-size:20px} }
 </style>
 </head>
 <body>
 <header>
-  <h1>運行管理シミュレーター</h1>
+  <h1>総合指令<small>運行管理シミュレーター</small></h1>
   <div class="clock"><span id="clock">--:--:--</span> <small id="dayLabel"></small></div>
-  <select id="lineSel" aria-label="路線選択"></select>
+  <select id="daySel" aria-label="ダイヤ選択" style="display:none"></select>
+  <select id="lineSel" aria-label="線区選択"></select>
   <div class="seg" id="speedSeg">
     <button data-s="1">×1</button><button data-s="10">×10</button>
     <button data-s="60" class="on">×60</button><button data-s="300">×300</button>
   </div>
   <button id="btnPause" class="primary" type="button">一時停止</button>
+  <button id="btnSync" type="button">実時刻に同期</button>
   <button id="btnReset" type="button">リセット</button>
+  <button id="btnEstop" class="estop" type="button">緊急停止</button>
   <label class="filelabel">時刻表JSONを読込<input type="file" id="fileData" accept=".json,application/json"></label>
 </header>
 <main>
   <section class="stats" id="stats"></section>
 
   <section class="card">
-    <h2>運行図</h2>
-    <div id="trackWrap"><svg id="trackSvg" role="img" aria-label="路線運行図"></svg></div>
-    <p class="note" id="trackNote"></p>
+    <h2>全線概況（全線区を同時運行）</h2>
+    <div id="overview"></div>
   </section>
 
   <section class="card">
-    <h2>列車一覧 <span class="note" id="listNote"></span></h2>
-    <div style="overflow-x:auto; max-height:340px; overflow-y:auto">
+    <h2>運行図（CTC表示）</h2>
+    <div id="trackWrap"><svg id="trackSvg" role="img" aria-label="路線運行図"></svg></div>
+    <p class="note">赤い区間＝列車が在線中。信号＝駅出発側（緑：進行可／赤：在線または時隔未了）。列車をクリックで選択。</p>
+  </section>
+
+  <div class="cmdgrid">
+    <section class="card">
+      <h2>指令操作</h2>
+      <div id="trainDetail" class="note" style="margin-bottom:8px">列車が選択されていません。運行図か一覧から列車を選んでください。</div>
+      <div class="row">
+        <button id="btnHold" type="button">抑止 / 解除</button>
+        <button id="btnInspect" type="button">車両点検 +3分</button>
+        <button id="btnSlow" type="button">次区間 徐行</button>
+        <button id="btnTerminate" type="button">次駅で運転打ち切り</button>
+        <button id="btnCancel" type="button">運休にする</button>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <span class="note">区間徐行:</span>
+        <select id="segFrom" aria-label="徐行区間の始点駅"></select>
+        <button id="btnSegSlow" type="button">この先の区間を徐行に設定</button>
+        <button id="btnSegClear" type="button">徐行を全解除</button>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button id="btnIncident" type="button">ランダムトラブル発生</button>
+        <label class="note"><input type="checkbox" id="autoIncident" checked> トラブル自動発生</label>
+        <label class="note"><input type="checkbox" id="recovery" checked> 回復運転</label>
+        <button id="btnCsv" type="button">運行実績CSVを出力</button>
+      </div>
+    </section>
+    <section class="card">
+      <h2>警報</h2>
+      <div id="alerts" class="note">警報はありません。</div>
+    </section>
+  </div>
+
+  <section class="card">
+    <h2>選択列車 着発実績</h2>
+    <div style="overflow-x:auto; max-height:300px; overflow-y:auto">
+      <table id="stopTable"><thead><tr><th>駅</th><th>着予定</th><th>着実績</th><th>発予定</th><th>発実績</th><th>遅延</th></tr></thead><tbody></tbody></table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>列車一覧（選択線区） <span class="note" id="listNote"></span></h2>
+    <div style="overflow-x:auto; max-height:320px; overflow-y:auto">
       <table id="trainTable"><thead><tr>
         <th>列車</th><th>種別</th><th>行先</th><th>現在位置</th><th>状態</th><th>遅延</th>
       </tr></thead><tbody></tbody></table>
     </div>
-    <div id="trainDetail" class="note" style="margin-top:8px">列車が選択されていません。運行図か一覧から列車を選んでください。</div>
-    <div class="row" style="margin-top:8px">
-      <button id="btnHold" type="button">抑止（次の停車駅で抑止）</button>
-      <button id="btnInspect" type="button">車両点検 +3分</button>
-      <button id="btnSlow" type="button">次の区間を徐行</button>
-      <button id="btnIncident" type="button">ランダムトラブル発生</button>
-      <label class="note"><input type="checkbox" id="autoIncident" checked> トラブル自動発生</label>
-      <label class="note"><input type="checkbox" id="recovery" checked> 回復運転</label>
-    </div>
   </section>
 
   <section class="card">
-    <h2>ダイヤグラム（実績）</h2>
+    <h2>ダイヤグラム（実績・選択線区）</h2>
     <canvas id="diagram" width="1120" height="320"></canvas>
   </section>
 
@@ -112,318 +159,411 @@ const EMBEDDED = {"date": "demo", "lines": [{"lineId": 1, "title": "蒼星線 �
 
 /* ================= ユーティリティ ================= */
 const $ = (id) => document.getElementById(id);
-const DAY_START = 4 * 3600;            // 始発帯 4:00
-const DAY_END = 28 * 3600;             // 翌4:00
-function fmt(t){ // 秒 -> HH:MM:SS（24時超はそのまま）
-  t = Math.max(0, Math.floor(t));
-  const h = Math.floor(t / 3600), m = Math.floor(t % 3600 / 60), s = t % 60;
-  return String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
-}
-function fmtHM(t){ return fmt(t).slice(0, 5); }
+const DAY_START = 4 * 3600, DAY_END = 28 * 3600;
+function fmt(t){ t = Math.max(0, Math.floor(t)); const h = Math.floor(t / 3600), m = Math.floor(t % 3600 / 60), s = t % 60;
+  return String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0"); }
+function fmtHM(t){ return t == null ? "——" : fmt(t).slice(0, 5); }
 function delayClass(sec){ return sec < 60 ? "d-ok" : sec < 300 ? "d-warn" : "d-bad"; }
 function esc(s){ return String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+function trainTitle(tr){ return tr.name ? tr.name : (tr.number ? tr.number + "" : "列車"); }
 
 /* ================= 状態 ================= */
-let DATA = null;          // {date, lines:[{lineId,title,stations,trains}]}
-let line = null;          // 現在の線区
-let trains = [];          // 運行中モデル
+let DATA = null, BUNDLE = null;
+let LS = [];              // 全線区の状態
+let sel = 0;              // 表示中の線区 index
 let simNow = DAY_START;
-let speed = 60, playing = true, lastTs = null;
-let selectedId = null;
-let completed = [];
+let speed = 60, playing = true, lastTs = null, ovTimer = 0;
+let selectedUid = null;   // {li, uid}
+let emergencyStop = false;
 let incidentTimer = 0;
 let logLines = [];
 
-function plannedEnd(tr){ const st = tr.stops[tr.stops.length - 1]; return st.arr ?? st.dep ?? 0; }
+function makeLineState(meta, li){
+  return { li, meta, title: meta.title, stations: meta.stations,
+    sectionFreeAt: new Array(Math.max(1, meta.stations.length)).fill(-Infinity),
+    slowSegs: {},   // stationIdx -> 解除時刻（その駅から先の区間を徐行）
+    trains: meta.trains.map((t, i) => ({ ...t, uid: i, li, state: "wait", stopIdx: 0, delay: 0,
+      holdNext: false, slowNext: false, terminateNext: false, actArr: {}, actDep: {}, enteredAt: 0, expectedArr: 0, terminalDelay: 0 })) };
+}
+function curLine(){ return LS[sel]; }
 function plannedStart(tr){ const st = tr.stops[0]; return st.dep ?? st.arr ?? 0; }
 
-function reset(){
-  simNow = DAY_START; completed = []; selectedId = null; logLines = []; incidentTimer = 0;
-  trains = line.trains.map((t, i) => ({
-    ...t, uid: i, state: "wait",       // wait | dwell | run | done
-    stopIdx: 0, delay: 0, holdNext: false, slowNext: false,
-    actArr: {}, actDep: {}, enteredAt: 0, fromX: 0,
-  }));
-  initSections();
-  log(`ダイヤ開始（${line.title}／${trains.length}本）`);
-  renderAll();
+function resetAll(){
+  simNow = DAY_START; selectedUid = null; logLines = []; incidentTimer = 0; emergencyStop = false;
+  $("btnEstop").classList.remove("on"); $("btnEstop").textContent = "緊急停止";
+  LS = DATA.lines.map((m, i) => makeLineState(m, i));
+  buildLineSel(); buildSegSel();
+  log(`ダイヤ開始（全${LS.length}線区・${LS.reduce((a, l) => a + l.trains.length, 0)}本）`);
+  renderAll(true);
 }
 function log(msg){
   logLines.push({ t: simNow, msg });
-  if (logLines.length > 300) logLines.shift();
+  if (logLines.length > 400) logLines.shift();
   const el = $("log");
   el.innerHTML = logLines.map(l => `<div><span class="t">${fmt(l.t)}</span> ${esc(l.msg)}</div>`).join("");
   el.scrollTop = el.scrollHeight;
 }
 
 /* ================= 運行ロジック =================
-   同一方向の発車間隔（最小運転時隔）を区間ごとに管理する簡易閉塞モデル。
-   先行列車の同区間発車から HEADWAY 秒経つまで後続は発車できない。
-   遅延は停車・走行で回復運転により一部回復する。 */
+   同一方向の最小運転時隔（HEADWAY）による簡易閉塞。全線区を同時に進める。 */
 const HEADWAY = 45;
-let sectionFreeAt = [];
-function initSections(){ sectionFreeAt = new Array(Math.max(1, line.stations.length)).fill(-Infinity); }
-function sectionReady(fromStationIdx){ return sectionFreeAt[fromStationIdx] <= simNow; }
-function occupySection(fromStationIdx){ sectionFreeAt[fromStationIdx] = simNow + HEADWAY; }
+function sectionReady(L, fromStationIdx){ return L.sectionFreeAt[fromStationIdx] <= simNow; }
+function segSlowed(L, fromStationIdx){ return (L.slowSegs[fromStationIdx] ?? -1) > simNow; }
+
 function step(dt){
   simNow += dt;
   if (simNow >= DAY_END){ simNow = DAY_END; playing = false; $("btnPause").textContent = "再開"; }
-  // トラブル自動発生（30〜90分に1回程度）
   if ($("autoIncident").checked && playing){
     incidentTimer -= dt;
     if (incidentTimer <= 0){ incidentTimer = 1800 + Math.random() * 3600; randomIncident(); }
   }
-  for (const tr of trains){
-    if (tr.state === "done") continue;
-    if (tr.state === "wait"){
-      const plan = plannedStart(tr);
-      if (simNow >= plan + tr.delay){
-        if (!sectionReady(tr.stops[0].s)){ continue; }
-        depart(tr, 0);
-      }
-      continue;
-    }
-    if (tr.state === "dwell"){
-      const st = tr.stops[tr.stopIdx];
-      const planDep = st.dep ?? st.arr ?? 0;
-      const planArr = st.arr ?? st.dep ?? 0;
-      if (tr.holdNext){ continue; } // 抑止中は発車しない
-      // 停車時分の余裕（最小停車25秒を超える分）は遅延回復に使える
-      const dwellSlack = $("recovery").checked ? Math.max(0, (planDep - planArr) - 25) : 0;
-      const ready = Math.max(planDep + Math.max(0, tr.delay - dwellSlack), (tr.actArr[tr.stopIdx] ?? 0) + 20);
-      if (simNow >= ready){
-        if (tr.stopIdx >= tr.stops.length - 1){ finish(tr); continue; }
-        if (!sectionReady(st.s)){ continue; }
-        depart(tr, tr.stopIdx);
-      }
-      continue;
-    }
-    if (tr.state === "run"){
-      if (simNow >= tr.expectedArr){
-        arrive(tr);
-      }
-    }
-  }
+  for (const L of LS) for (const tr of L.trains) stepTrain(L, tr);
 }
-function depart(tr, fromIdx){
+function stepTrain(L, tr){
+  if (tr.state === "done" || tr.state === "cancelled") return;
+  if (tr.state === "wait"){
+    if (emergencyStop) return;
+    const plan = plannedStart(tr);
+    if (simNow >= plan + tr.delay && sectionReady(L, tr.stops[0].s)) depart(L, tr, 0);
+    return;
+  }
+  if (tr.state === "dwell"){
+    if (emergencyStop || tr.holdNext) return;
+    const st = tr.stops[tr.stopIdx];
+    const planDep = st.dep ?? st.arr ?? 0, planArr = st.arr ?? st.dep ?? 0;
+    const dwellSlack = $("recovery").checked ? Math.max(0, (planDep - planArr) - 25) : 0;
+    const ready = Math.max(planDep + Math.max(0, tr.delay - dwellSlack), (tr.actArr[tr.stopIdx] ?? 0) + 20);
+    if (simNow >= ready){
+      if (tr.stopIdx >= tr.stops.length - 1){ finish(tr); return; }
+      if (sectionReady(L, st.s)) depart(L, tr, tr.stopIdx);
+    }
+    return;
+  }
+  if (tr.state === "run" && simNow >= tr.expectedArr) arrive(L, tr);
+}
+function depart(L, tr, fromIdx){
   const st = tr.stops[fromIdx];
-  occupySection(st.s);
+  L.sectionFreeAt[st.s] = simNow + HEADWAY;
   tr.actDep[fromIdx] = simNow;
   tr.delay = Math.max(0, simNow - (st.dep ?? st.arr ?? simNow));
   tr.state = "run"; tr.stopIdx = fromIdx; tr.enteredAt = simNow;
   const nxt = tr.stops[fromIdx + 1];
   const planRun = Math.max(30, (nxt.arr ?? nxt.dep ?? 0) - (st.dep ?? st.arr ?? 0));
   let run = planRun;
-  if (tr.slowNext){ run = Math.round(run * 1.6); tr.slowNext = false; log(`${label(tr)} 徐行のため区間所要が増加`); }
-  if ($("recovery").checked && tr.delay > 0){
-    const rec = Math.min(tr.delay, planRun * 0.12); // 余裕時分の範囲で回復
-    run = Math.max(30, run - rec);
-  }
+  if (tr.slowNext){ run = Math.round(run * 1.6); tr.slowNext = false; log(`${L.title} ${trainTitle(tr)} 徐行のため区間所要が増加`); }
+  if (segSlowed(L, st.s)){ run = Math.round(run * 1.6); }
+  if ($("recovery").checked && tr.delay > 0) run = Math.max(30, run - Math.min(tr.delay, planRun * 0.12));
   tr.expectedArr = simNow + run;
-  tr.planRun = planRun;
 }
-function arrive(tr){
-  const idx = tr.stopIdx + 1;
-  const st = tr.stops[idx];
+function arrive(L, tr){
+  const idx = tr.stopIdx + 1, st = tr.stops[idx];
   tr.actArr[idx] = tr.expectedArr;
-  tr.blockFrom = tr.stopIdx;
   const planArr = st.arr ?? st.dep ?? tr.expectedArr;
   tr.delay = Math.max(0, tr.expectedArr - planArr);
   tr.stopIdx = idx;
-  if (st.pass){ // 通過駅は停車せず次区間へ（時隔が空いていなければ一旦待つ）
+  if (tr.terminateNext && !st.pass){ finish(tr); log(`${L.title} ${trainTitle(tr)} ${L.stations[st.s]}で運転打ち切り`); return; }
+  if (st.pass){
     if (idx >= tr.stops.length - 1){ tr.actDep[idx] = tr.expectedArr; finish(tr); return; }
-    if (!sectionReady(st.s)){ tr.state = "dwell"; tr.actArr[idx] = tr.expectedArr; return; }
+    if (emergencyStop || !sectionReady(L, st.s)){ tr.state = "dwell"; return; }
     tr.actDep[idx] = tr.expectedArr;
-    depart(tr, idx);
+    depart(L, tr, idx);
     return;
   }
   if (idx >= tr.stops.length - 1){ finish(tr); return; }
   tr.state = "dwell";
-  if (tr.holdNext){ log(`${label(tr)} ${line.stations[st.s]}で抑止中`); }
+  if (tr.holdNext) log(`${L.title} ${trainTitle(tr)} ${L.stations[st.s]}で抑止中`);
 }
-function finish(tr){
-  tr.state = "done";
-  tr.terminalDelay = tr.delay;
-  completed.push(tr);
-}
-function label(tr){ return `${tr.name || tr.number || ""}${tr.name ? "" : "列車"}`.trim() || `列車${tr.uid}`; }
-function trainTitle(tr){
-  const nm = tr.name ? tr.name : (tr.number ? tr.number : "列車");
-  return `${nm}`;
-}
+function finish(tr){ tr.state = "done"; tr.terminalDelay = tr.delay; }
 const INCIDENTS = [
   { name: "車両点検", min: 3 }, { name: "踏切安全確認", min: 2 },
   { name: "急病人対応", min: 4 }, { name: "信号確認", min: 2 }, { name: "ドア点検", min: 3 },
+  { name: "線路内人立ち入り", min: 5 },
 ];
 function randomIncident(){
-  const running = trains.filter(t => t.state === "run" || t.state === "dwell");
-  if (!running.length) return;
-  const tr = running[Math.floor(Math.random() * running.length)];
+  const pool = [];
+  for (const L of LS) for (const tr of L.trains) if (tr.state === "run" || tr.state === "dwell") pool.push([L, tr]);
+  if (!pool.length) return;
+  const [L, tr] = pool[Math.floor(Math.random() * pool.length)];
   const inc = INCIDENTS[Math.floor(Math.random() * INCIDENTS.length)];
-  applyDelay(tr, inc.min * 60, inc.name);
+  applyDelay(L, tr, inc.min * 60, inc.name);
 }
-function applyDelay(tr, sec, cause){
-  if (tr.state === "run"){ tr.expectedArr += sec; }
+function applyDelay(L, tr, sec, cause){
+  if (tr.state === "run") tr.expectedArr += sec;
   tr.delay += sec;
-  log(`${trainTitle(tr)} ${cause} +${Math.round(sec / 60)}分（遅延 ${Math.floor(tr.delay / 60)}分）`);
-  renderAll();
+  log(`${L.title} ${trainTitle(tr)} ${cause} +${Math.round(sec / 60)}分（遅延 ${Math.floor(tr.delay / 60)}分）`);
+}
+function findSelTrain(){
+  if (!selectedUid) return null;
+  const L = LS[selectedUid.li]; if (!L) return null;
+  return [L, L.trains[selectedUid.uid]] || null;
 }
 
 /* ================= 描画 ================= */
-function stationX(i){ const w = Math.max(860, line.stations.length * 46); return 30 + (w - 60) * (line.stations.length === 1 ? 0 : i / (line.stations.length - 1)); }
-function posOf(tr){
-  if (tr.state === "wait") return -1;
-  if (tr.state === "done") return line.stations.length - 1;
+function posOf(L, tr){
   if (tr.state === "dwell") return tr.stops[tr.stopIdx].s;
   if (tr.state === "run"){
     const a = tr.stops[tr.stopIdx], b = tr.stops[tr.stopIdx + 1];
     const p = Math.min(1, Math.max(0, (simNow - tr.enteredAt) / Math.max(1, tr.expectedArr - tr.enteredAt)));
     return a.s + (b.s - a.s) * p;
   }
-  return 0;
+  return -1;
+}
+function segOccupied(L, i){
+  for (const tr of L.trains){
+    if (tr.state !== "run") continue;
+    const a = tr.stops[tr.stopIdx].s, b = tr.stops[tr.stopIdx + 1].s;
+    if (i >= Math.min(a, b) && i < Math.max(a, b)) return true;
+  }
+  return false;
 }
 function renderTrack(){
+  const L = curLine(); if (!L) return;
   const svg = $("trackSvg");
-  const w = Math.max(860, line.stations.length * 46), h = 120;
+  const w = Math.max(880, L.stations.length * 48), h = 118;
   svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
-  let s = `<line x1="30" y1="58" x2="${w - 30}" y2="58" stroke="#c7c7cc" stroke-width="3"/>`;
-  line.stations.forEach((name, i) => {
-    const x = stationX(i);
-    s += `<line x1="${x}" y1="50" x2="${x}" y2="66" stroke="#8e8e93" stroke-width="2"/>`;
-    s += `<text x="${x}" y="88" text-anchor="middle" transform="rotate(0)">${esc(name)}</text>`;
+  const X = (i) => 30 + (w - 60) * (L.stations.length === 1 ? 0 : i / (L.stations.length - 1));
+  let s = "";
+  for (let i = 0; i < L.stations.length - 1; i++){
+    const occ = segOccupied(L, i);
+    s += `<line x1="${X(i)}" y1="56" x2="${X(i + 1)}" y2="56" stroke="${occ ? "#ff4d4f" : "#3a3f47"}" stroke-width="4"/>`;
+    if (segSlowed(L, i)) s += `<line x1="${X(i)}" y1="63" x2="${X(i + 1)}" y2="63" stroke="#f5a623" stroke-width="2"/>`;
+  }
+  L.stations.forEach((name, i) => {
+    const x = X(i);
+    const sig = i < L.stations.length - 1 ? (segOccupied(L, i) || !sectionReady(L, i) ? "#ff4d4f" : "#3fb950") : "#3a3f47";
+    s += `<rect x="${x - 3}" y="50" width="6" height="12" fill="#c9ccd1"/>`;
+    s += `<circle cx="${x + 9}" cy="44" r="4" fill="${sig}"/>`;
+    s += `<text x="${x}" y="86" text-anchor="middle">${esc(name)}</text>`;
   });
-  for (const tr of trains){
-    if (tr.state === "wait" || tr.state === "done") continue;
-    const p = posOf(tr); if (p < 0) continue;
-    const x = 30 + (w - 60) * (p / (line.stations.length - 1 || 1));
-    const col = tr.delay >= 300 ? "#d70015" : tr.delay >= 60 ? "#e8590c" : "#0066cc";
-    s += `<g class="trainDot" data-uid="${tr.uid}"><circle cx="${x}" cy="58" r="9" fill="${col}"/><text x="${x}" y="40" text-anchor="middle" fill="#1d1d1f" font-weight="700">${esc((tr.name || tr.number || "").slice(0, 6))}</text></g>`;
+  for (const tr of L.trains){
+    if (tr.state !== "run" && tr.state !== "dwell") continue;
+    const p = posOf(L, tr); if (p < 0) continue;
+    const x = 30 + (w - 60) * (p / (L.stations.length - 1 || 1));
+    const col = tr.delay >= 300 ? "#ff4d4f" : tr.delay >= 60 ? "#f5a623" : "#4da3ff";
+    const isSel = selectedUid && selectedUid.li === L.li && selectedUid.uid === tr.uid;
+    s += `<g class="trainDot" data-li="${L.li}" data-uid="${tr.uid}"><rect x="${x - 13}" y="46" width="26" height="20" rx="3" fill="${col}" ${isSel ? 'stroke="#fff" stroke-width="2"' : ""}/><text x="${x}" y="36" text-anchor="middle" fill="#e8e9eb" font-weight="700">${esc((tr.number || "").slice(0, 5))}</text><text x="${x}" y="60" text-anchor="middle" fill="#101216" font-weight="700" font-size="9">${tr.delay >= 60 ? "+" + Math.floor(tr.delay / 60) : "・"}</text></g>`;
   }
   svg.innerHTML = s;
-  svg.querySelectorAll(".trainDot").forEach(g => g.addEventListener("click", () => { selectedId = +g.dataset.uid; renderAll(); }));
-  $("trackNote").textContent = `${line.title}／${line.stations.length}駅／${trains.length}本`;
+  svg.querySelectorAll(".trainDot").forEach(g => g.addEventListener("click", () => {
+    selectedUid = { li: +g.dataset.li, uid: +g.dataset.uid }; renderAll(true);
+  }));
 }
-function posLabel(tr){
-  if (tr.state === "wait") return `始発駅待機（${fmtHM(plannedStart(tr))}発）`;
-  if (tr.state === "done") return `終着 ${line.stations[tr.stops[tr.stops.length - 1].s]}`;
+function posLabel(L, tr){
+  if (tr.state === "wait") return `始発待機（${fmtHM(plannedStart(tr))}発）`;
+  if (tr.state === "done") return `終着 ${L.stations[tr.stops[tr.stops.length - 1].s]}`;
+  if (tr.state === "cancelled") return "運休";
   const st = tr.stops[tr.stopIdx];
-  if (tr.state === "dwell") return `${line.stations[st.s]} 停車中`;
+  if (tr.state === "dwell") return `${L.stations[st.s]} 停車中`;
   const nx = tr.stops[tr.stopIdx + 1];
-  return `${line.stations[st.s]}→${line.stations[nx.s]}`;
+  return `${L.stations[st.s]}→${L.stations[nx.s]}`;
 }
-function renderTable(){
-  const tb = $("trainTable").querySelector("tbody");
-  const active = trains.filter(t => t.state !== "wait");
-  const show = [...active].sort((a, b) => b.delay - a.delay).slice(0, 60);
-  tb.innerHTML = show.map(tr => {
-    const stTxt = tr.state === "done" ? "終着" : tr.state === "dwell" ? (tr.holdNext ? "抑止中" : "停車") : "走行中";
-    const cls = /特急|新幹線|ライナー/.test(tr.type) ? "badge exp" : /快速/.test(tr.type) ? "badge rap" : "badge";
-    return `<tr data-uid="${tr.uid}" class="${tr.uid === selectedId ? "sel" : ""}"><td>${esc(trainTitle(tr))}</td><td><span class="${cls}">${esc(tr.type || "普通")}</span></td><td>${esc(tr.dest)}行</td><td>${esc(posLabel(tr))}</td><td>${stTxt}</td><td class="${delayClass(tr.delay)}">${Math.floor(tr.delay / 60)}分</td></tr>`;
-  }).join("") || `<tr><td colspan="6" class="note">運行中の列車はありません</td></tr>`;
-  tb.querySelectorAll("tr[data-uid]").forEach(r => r.addEventListener("click", () => { selectedId = +r.dataset.uid; renderAll(); }));
-  $("listNote").textContent = `（遅延順・運行開始済み ${active.length}本）`;
+function lineAgg(L){
+  let run = 0, delayed = 0, maxD = 0, done = 0, canc = 0;
+  for (const tr of L.trains){
+    if (tr.state === "run" || tr.state === "dwell"){ run++; if (tr.delay >= 300) delayed++; maxD = Math.max(maxD, tr.delay); }
+    else if (tr.state === "done"){ done++; maxD = Math.max(maxD, tr.terminalDelay || 0); }
+    else if (tr.state === "cancelled") canc++;
+  }
+  return { run, delayed, maxD, done, canc };
 }
 function renderStats(){
-  const running = trains.filter(t => t.state === "run" || t.state === "dwell").length;
-  const delayed = trains.filter(t => (t.state === "run" || t.state === "dwell") && t.delay >= 300).length;
-  const maxD = trains.reduce((m, t) => Math.max(m, t.state === "done" ? (t.terminalDelay || 0) : t.delay), 0);
-  const doneOnTime = completed.filter(t => (t.terminalDelay || 0) < 60).length;
-  const rate = completed.length ? Math.round(doneOnTime / completed.length * 100) : 100;
+  let run = 0, delayed = 0, maxD = 0, done = 0, total = 0, canc = 0, onTime = 0;
+  for (const L of LS){ const a = lineAgg(L); run += a.run; delayed += a.delayed; maxD = Math.max(maxD, a.maxD); done += a.done; canc += a.canc; total += L.trains.length;
+    for (const tr of L.trains) if (tr.state === "done" && (tr.terminalDelay || 0) < 60) onTime++; }
+  const rate = done ? Math.round(onTime / done * 100) : 100;
   $("stats").innerHTML = [
-    ["運行中", running + "本"], ["終着済み", completed.length + "本"],
-    ["5分以上遅延", delayed + "本"], ["最大遅延", Math.floor(maxD / 60) + "分"],
-    ["定時率（終着）", rate + "%"],
+    ["運行中（全線）", run + "本"], ["終着済み", done + "本"], ["運休", canc + "本"],
+    ["5分以上遅延", delayed + "本"], ["最大遅延", Math.floor(maxD / 60) + "分"], ["定時率（終着）", rate + "%"],
   ].map(([k, v]) => `<div class="stat"><div class="v">${v}</div><div class="k">${k}</div></div>`).join("");
 }
+function renderOverview(){
+  $("overview").innerHTML = LS.map((L, i) => {
+    const a = lineAgg(L);
+    const cls = a.maxD >= 600 ? "st-bad" : a.maxD >= 300 ? "st-warn" : "st-ok";
+    const st = a.maxD >= 600 ? "大幅遅延" : a.maxD >= 300 ? "遅延あり" : "平常";
+    return `<div class="ov ${i === sel ? "sel" : ""}" data-i="${i}"><div class="t">${esc(L.title)}</div><div class="s">運行 <b>${a.run}</b>／終着 <b>${a.done}</b>／運休 <b>${a.canc}</b><br>最大遅延 <b class="${cls}">${Math.floor(a.maxD / 60)}分</b> <span class="${cls}">${st}</span></div></div>`;
+  }).join("");
+  $("overview").querySelectorAll(".ov").forEach(d => d.addEventListener("click", () => { sel = +d.dataset.i; buildSegSel(); renderAll(true); }));
+}
+function renderTable(){
+  const L = curLine(); if (!L) return;
+  const tb = $("trainTable").querySelector("tbody");
+  const active = L.trains.filter(t => t.state !== "wait");
+  const show = [...active].sort((a, b) => b.delay - a.delay).slice(0, 80);
+  tb.innerHTML = show.map(tr => {
+    const stTxt = tr.state === "done" ? "終着" : tr.state === "cancelled" ? "運休" : tr.state === "dwell" ? (tr.holdNext ? "抑止中" : "停車") : "走行中";
+    const cls = /特急|新幹線|ライナー/.test(tr.type) ? "badge exp" : /快速/.test(tr.type) ? "badge rap" : "badge";
+    const isSel = selectedUid && selectedUid.li === L.li && selectedUid.uid === tr.uid;
+    return `<tr data-uid="${tr.uid}" class="${isSel ? "sel" : ""}"><td>${esc(trainTitle(tr))}</td><td><span class="${cls}">${esc(tr.type || "普通")}</span></td><td>${esc(tr.dest)}行</td><td>${esc(posLabel(L, tr))}</td><td>${stTxt}</td><td class="${delayClass(tr.delay)}">${Math.floor(tr.delay / 60)}分</td></tr>`;
+  }).join("") || `<tr><td colspan="6" class="note">運行中の列車はありません</td></tr>`;
+  tb.querySelectorAll("tr[data-uid]").forEach(r => r.addEventListener("click", () => { selectedUid = { li: L.li, uid: +r.dataset.uid }; renderAll(true); }));
+  $("listNote").textContent = `（遅延順・運行開始済み ${active.length}本／全${L.trains.length}本）`;
+}
 function renderDetail(){
-  const el = $("trainDetail");
-  const tr = trains.find(t => t.uid === selectedId);
-  if (!tr){ el.textContent = "列車が選択されていません。運行図か一覧から列車を選んでください。"; return; }
-  const st = tr.stops.map(sp => {
-    const nm = line.stations[sp.s];
-    const a = tr.actArr[tr.stops.indexOf(sp)], d = tr.actDep[tr.stops.indexOf(sp)];
-    const plan = `${sp.pass ? "通過" : (sp.arr ? fmtHM(sp.arr) : "——") + "着 " + (sp.dep ? fmtHM(sp.dep) : "——") + "発"}`;
-    const act = (a ? " 実着 " + fmtHM(a) : "") + (d ? " 実発 " + fmtHM(d) : "");
-    return `${nm}（${plan}${act}）`;
-  }).join(" → ");
-  el.innerHTML = `<b>${esc(trainTitle(tr))}</b> ${esc(tr.type)} ${esc(tr.dest)}行／遅延 ${Math.floor(tr.delay / 60)}分<br>${esc(st)}`;
+  const el = $("trainDetail"), tb = $("stopTable").querySelector("tbody");
+  const found = findSelTrain();
+  if (!found){ el.textContent = "列車が選択されていません。運行図か一覧から列車を選んでください。"; tb.innerHTML = ""; return; }
+  const [L, tr] = found;
+  el.innerHTML = `<b>${esc(L.title)}</b>／<b>${esc(trainTitle(tr))}</b> ${esc(tr.type)} ${esc(tr.dest)}行／状態 ${esc(posLabel(L, tr))}／遅延 ${Math.floor(tr.delay / 60)}分${tr.holdNext ? "／抑止設定あり" : ""}${tr.terminateNext ? "／次駅打ち切り設定" : ""}`;
+  tb.innerHTML = tr.stops.map((sp, i) => {
+    const aA = tr.actArr[i], aD = tr.actDep[i];
+    const dly = aA ? Math.max(0, aA - (sp.arr ?? sp.dep ?? aA)) : (aD ? Math.max(0, aD - (sp.dep ?? sp.arr ?? aD)) : 0);
+    return `<tr><td>${esc(L.stations[sp.s])}${sp.pass ? "（通過）" : ""}</td><td>${fmtHM(sp.arr)}</td><td>${fmtHM(aA)}</td><td>${fmtHM(sp.dep)}</td><td>${fmtHM(aD)}</td><td class="${(aA || aD) ? delayClass(dly) : ""}">${(aA || aD) ? Math.floor(dly / 60) + "分" : ""}</td></tr>`;
+  }).join("");
+}
+function renderAlerts(){
+  const items = [];
+  if (emergencyStop) items.push(`<span class="st-bad">■ 緊急停止中（全線発車見合わせ）</span>`);
+  for (const L of LS) for (const tr of L.trains){
+    if (tr.state === "cancelled") items.push(`<span class="st-warn">■ 運休 ${esc(L.title)} ${esc(trainTitle(tr))}</span>`);
+    else if ((tr.state === "run" || tr.state === "dwell") && tr.delay >= 600) items.push(`<span class="st-bad">■ 遅延${Math.floor(tr.delay / 60)}分 ${esc(L.title)} ${esc(trainTitle(tr))}（${esc(posLabel(L, tr))}）</span>`);
+    else if ((tr.state === "run" || tr.state === "dwell") && tr.delay >= 300) items.push(`<span class="st-warn">■ 遅延${Math.floor(tr.delay / 60)}分 ${esc(L.title)} ${esc(trainTitle(tr))}</span>`);
+    else if (tr.state === "dwell" && tr.holdNext) items.push(`<span class="st-warn">■ 抑止中 ${esc(L.title)} ${esc(trainTitle(tr))}</span>`);
+  }
+  $("alerts").innerHTML = items.length ? items.slice(0, 40).join("<br>") : "警報はありません。";
 }
 function renderDiagram(){
+  const L = curLine(); if (!L) return;
   const cv = $("diagram"), ctx = cv.getContext("2d");
-  const W = cv.width, H = cv.height, L = 92, R = 16, T = 14, B = 22;
+  const W = cv.width, H = cv.height, Lm = 92, R = 16, T = 14, B = 22;
   ctx.clearRect(0, 0, W, H);
-  const n = line.stations.length;
+  const n = L.stations.length;
   const y = (i) => T + (H - T - B) * (n === 1 ? 0 : i / (n - 1));
-  const x = (t) => L + (W - L - R) * (t - DAY_START) / (DAY_END - DAY_START);
-  ctx.strokeStyle = "#e3e3e8"; ctx.fillStyle = "#6e6e73"; ctx.font = "10px sans-serif"; ctx.lineWidth = 1;
-  line.stations.forEach((nm, i) => { ctx.beginPath(); ctx.moveTo(L, y(i)); ctx.lineTo(W - R, y(i)); ctx.stroke(); ctx.fillText(nm, 4, y(i) + 3); });
-  for (let h = 4; h <= 28; h += 2){ ctx.fillText((h % 24) + "時", x(h * 3600) - 8, H - 6); }
-  ctx.strokeStyle = "#d70015"; ctx.beginPath(); ctx.moveTo(x(simNow), T); ctx.lineTo(x(simNow), H - B); ctx.stroke();
-  for (const tr of trains){
+  const x = (t) => Lm + (W - Lm - R) * (t - DAY_START) / (DAY_END - DAY_START);
+  ctx.strokeStyle = "#23262d"; ctx.fillStyle = "#9aa0a8"; ctx.font = "10px sans-serif"; ctx.lineWidth = 1;
+  L.stations.forEach((nm, i) => { ctx.beginPath(); ctx.moveTo(Lm, y(i)); ctx.lineTo(W - R, y(i)); ctx.stroke(); ctx.fillText(nm, 4, y(i) + 3); });
+  for (let h = 4; h <= 28; h += 2) ctx.fillText((h % 24) + "時", x(h * 3600) - 8, H - 6);
+  ctx.strokeStyle = "#ff4d4f"; ctx.beginPath(); ctx.moveTo(x(simNow), T); ctx.lineTo(x(simNow), H - B); ctx.stroke();
+  for (const tr of L.trains){
     const pts = [];
-    tr.stops.forEach((sp, i) => {
-      const a = tr.actArr[i], d = tr.actDep[i];
-      if (a) pts.push([a, sp.s]); if (d) pts.push([d, sp.s]);
-    });
-    if (tr.state === "run"){ const p = posOf(tr); pts.push([simNow, p]); }
+    tr.stops.forEach((sp, i) => { if (tr.actArr[i]) pts.push([tr.actArr[i], sp.s]); if (tr.actDep[i]) pts.push([tr.actDep[i], sp.s]); });
+    if (tr.state === "run") pts.push([simNow, posOf(L, tr)]);
     if (pts.length < 2) continue;
-    ctx.strokeStyle = tr.delay >= 300 ? "#d70015" : "#0066cc"; ctx.lineWidth = tr.uid === selectedId ? 2.4 : 1;
+    const isSel = selectedUid && selectedUid.li === L.li && selectedUid.uid === tr.uid;
+    ctx.strokeStyle = tr.state === "cancelled" ? "#3a3f47" : tr.delay >= 300 ? "#ff4d4f" : "#4da3ff";
+    ctx.lineWidth = isSel ? 2.4 : 1;
     ctx.beginPath(); pts.forEach(([t, si], i) => { const px = x(t), py = y(si); i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); }); ctx.stroke();
   }
   ctx.lineWidth = 1;
 }
-function renderAll(){ renderTrack(); renderTable(); renderStats(); renderDetail(); $("clock").textContent = fmt(simNow); }
+function renderAll(force){
+  $("clock").textContent = fmt(simNow);
+  renderStats(); renderTrack(); renderTable(); renderDetail(); renderAlerts(); renderDiagram();
+  if (force) renderOverview();
+}
 
 /* ================= メインループ ================= */
 function loop(ts){
   if (lastTs == null) lastTs = ts;
   const dtReal = Math.min(2, (ts - lastTs) / 1000); lastTs = ts;
-  if (playing){ step(dtReal * speed); }
-  renderAll(); renderDiagram();
+  if (playing) step(dtReal * speed);
+  ovTimer -= dtReal;
+  const force = ovTimer <= 0; if (force) ovTimer = 1.0;
+  renderAll(force);
   requestAnimationFrame(loop);
 }
 
 /* ================= UI ================= */
-function setData(data, label){
-  DATA = data;
-  const sel = $("lineSel");
-  sel.innerHTML = data.lines.map((l, i) => `<option value="${i}">${esc(l.title)}（${l.trains.length}本）</option>`).join("");
-  line = data.lines[0];
-  $("dayLabel").textContent = label || "";
-  $("srcNote").textContent = data.sourceNote || "";
-  reset();
+function buildLineSel(){
+  $("lineSel").innerHTML = LS.map((L, i) => `<option value="${i}">${esc(L.title)}（${L.trains.length}本）</option>`).join("");
+  $("lineSel").value = String(sel);
 }
-$("lineSel").addEventListener("change", (e) => { line = DATA.lines[+e.target.value]; reset(); });
+function buildSegSel(){
+  const L = curLine(); if (!L) return;
+  $("segFrom").innerHTML = L.stations.slice(0, -1).map((nm, i) => `<option value="${i}">${esc(nm)} から先</option>`).join("");
+}
+function applyDataset(data, label){
+  DATA = data; sel = 0;
+  $("dayLabel").textContent = label || data.dateLabel || "";
+  $("srcNote").textContent = data.sourceNote || "";
+  resetAll();
+}
+function setData(data, label){
+  if (data && Array.isArray(data.days)){
+    BUNDLE = data;
+    const ds = $("daySel");
+    ds.style.display = "";
+    ds.innerHTML = data.days.map((d, i) => `<option value="${i}">${esc(d.label)}</option>`).join("");
+    applyDataset(data.days[0].data, data.days[0].label);
+  } else { BUNDLE = null; $("daySel").style.display = "none"; applyDataset(data, label); }
+}
+$("daySel").addEventListener("change", (e) => { if (!BUNDLE) return; const d = BUNDLE.days[+e.target.value]; applyDataset(d.data, d.label); });
+$("lineSel").addEventListener("change", (e) => { sel = +e.target.value; buildSegSel(); renderAll(true); });
 $("speedSeg").querySelectorAll("button").forEach(b => b.addEventListener("click", () => {
   speed = +b.dataset.s; $("speedSeg").querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b));
 }));
 $("btnPause").addEventListener("click", () => { playing = !playing; $("btnPause").textContent = playing ? "一時停止" : "再開"; });
-$("btnReset").addEventListener("click", reset);
+$("btnReset").addEventListener("click", resetAll);
+$("btnSync").addEventListener("click", () => {
+  const now = new Date(); let s = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+  if (s < DAY_START) s += 24 * 3600;
+  simNow = Math.min(Math.max(s, DAY_START), DAY_END - 60);
+  log(`実時刻に同期（${fmt(simNow)}）`);
+});
+$("btnEstop").addEventListener("click", () => {
+  emergencyStop = !emergencyStop;
+  $("btnEstop").classList.toggle("on", emergencyStop);
+  $("btnEstop").textContent = emergencyStop ? "緊急停止中（解除）" : "緊急停止";
+  log(emergencyStop ? "緊急停止を指令（全線発車見合わせ）" : "緊急停止を解除");
+  renderAll(true);
+});
 $("btnHold").addEventListener("click", () => {
-  const tr = trains.find(t => t.uid === selectedId); if (!tr) return;
+  const f = findSelTrain(); if (!f) return; const [L, tr] = f;
   tr.holdNext = !tr.holdNext;
-  log(`${trainTitle(tr)} 抑止${tr.holdNext ? "を設定" : "を解除"}`);
-  renderAll();
+  log(`${L.title} ${trainTitle(tr)} 抑止${tr.holdNext ? "を設定" : "を解除"}`);
+  renderAll(true);
 });
-$("btnInspect").addEventListener("click", () => {
-  const tr = trains.find(t => t.uid === selectedId); if (!tr) return;
-  applyDelay(tr, 180, "車両点検");
-});
+$("btnInspect").addEventListener("click", () => { const f = findSelTrain(); if (!f) return; applyDelay(f[0], f[1], 180, "車両点検"); renderAll(true); });
 $("btnSlow").addEventListener("click", () => {
-  const tr = trains.find(t => t.uid === selectedId); if (!tr) return;
-  tr.slowNext = true; log(`${trainTitle(tr)} 次の区間を徐行に設定`);
+  const f = findSelTrain(); if (!f) return; const [L, tr] = f;
+  tr.slowNext = true; log(`${L.title} ${trainTitle(tr)} 次の区間を徐行に設定`); renderAll(true);
 });
-$("btnIncident").addEventListener("click", randomIncident);
+$("btnTerminate").addEventListener("click", () => {
+  const f = findSelTrain(); if (!f) return; const [L, tr] = f;
+  tr.terminateNext = true; log(`${L.title} ${trainTitle(tr)} 次の停車駅で運転打ち切りを設定`); renderAll(true);
+});
+$("btnCancel").addEventListener("click", () => {
+  const f = findSelTrain(); if (!f) return; const [L, tr] = f;
+  if (tr.state !== "done"){ tr.state = "cancelled"; log(`${L.title} ${trainTitle(tr)} を運休に設定`); }
+  renderAll(true);
+});
+$("btnSegSlow").addEventListener("click", () => {
+  const L = curLine(); if (!L) return;
+  const i = +$("segFrom").value;
+  L.slowSegs[i] = simNow + 1800;
+  log(`${L.title} ${L.stations[i]}から先の区間を徐行に設定（30分）`);
+  renderAll(true);
+});
+$("btnSegClear").addEventListener("click", () => {
+  const L = curLine(); if (!L) return;
+  L.slowSegs = {}; log(`${L.title} 区間徐行を全て解除`); renderAll(true);
+});
+$("btnIncident").addEventListener("click", () => { randomIncident(); renderAll(true); });
+$("btnCsv").addEventListener("click", () => {
+  const rows = [["線区", "列車番号", "種別", "列車名", "行先", "駅", "着予定", "着実績", "発予定", "発実績", "遅延(分)"]];
+  for (const L of LS) for (const tr of L.trains){
+    tr.stops.forEach((sp, i) => {
+      if (!tr.actArr[i] && !tr.actDep[i]) return;
+      const base = sp.arr ?? sp.dep ?? 0, act = tr.actArr[i] ?? tr.actDep[i] ?? 0;
+      rows.push([L.title, tr.number, tr.type, tr.name, tr.dest, L.stations[sp.s], fmtHM(sp.arr), fmtHM(tr.actArr[i]), fmtHM(sp.dep), fmtHM(tr.actDep[i]), Math.floor(Math.max(0, act - base) / 60)]);
+    });
+  }
+  const csv = "﻿" + rows.map(r => r.map(c => `"${String(c ?? "").replace(/"/g, '""')}"`).join(",")).join("\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+  a.download = "運行実績.csv"; a.click();
+  URL.revokeObjectURL(a.href);
+});
 $("fileData").addEventListener("change", (e) => {
   const f = e.target.files[0]; if (!f) return;
   f.text().then(txt => {
-    try { const d = JSON.parse(txt); setData(d, d.date ? `読込データ ${d.date}` : "読込データ"); log("時刻表JSONを読み込んだ"); }
+    try { setData(JSON.parse(txt)); log("時刻表JSONを読み込んだ"); }
     catch (err) { alert("JSONの読み込みに失敗しました"); }
   });
 });
 
 /* 初期データ */
-if (EMBEDDED){ setData(EMBEDDED, EMBEDDED.dateLabel || ""); }
+if (EMBEDDED) setData(EMBEDDED);
 requestAnimationFrame(loop);
 </script>
 </body>
